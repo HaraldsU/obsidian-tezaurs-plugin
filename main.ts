@@ -1,4 +1,6 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, RequestUrlResponse, requestUrl} from 'obsidian';
+import * as cheerio from 'cheerio';
+import fetch from 'node-fetch';
 
 // Remember to rename these classes and interfaces!
 
@@ -15,6 +17,32 @@ export default class MyPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+
+		const tezaurs = await requestUrl('https://tezaurs.lv/durvis').text;
+		console.log("tez = ", tezaurs);
+
+		const $ = cheerio.load(tezaurs);
+		const dict_sense = $('.dict_Sense:first .dict_Gloss');
+
+		console.log(dict_sense.length);
+		// console.log(dict_sense);
+		// console.log(dict_sense.text());
+
+		let id = 1
+
+		$('.dict_Sense:first .dict_Gloss').each(function(i, elm) {
+			console.log(id, $(this).text());
+			id = id + 1; 
+		});
+
+		// dict_sense.each((index, element) => {
+		// 	console.log(dict_sense.text());
+		// 	console.log('\n');
+		// })
+
+
+
+		// await this.getData();
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
