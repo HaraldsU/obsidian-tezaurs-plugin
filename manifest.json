@@ -1,11 +1,11 @@
 {
-	"id": "test-test",
-	"name": "Test Test",
+	"id": "tezaurs-definition",
+	"name": "Tezaurs Definition",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"description": "Provides a definition for a Latvian word from https://tezaurs.lv.",
+	"author": "HaraldsU",
+	"authorUrl": "https://github.com/HaraldsU",
+	"fundingUrl": "",
+	"isDesktopOnly": true
 }

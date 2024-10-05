@@ -1,6 +1,8 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, RequestUrlResponse, requestUrl} from 'obsidian';
 import * as cheerio from 'cheerio';
 import fetch from 'node-fetch';
+import { WorkspaceLeaf } from "obsidian";
+import { ExampleView, VIEW_TYPE_EXAMPLE } from "./views/test-view";
 
 // Remember to rename these classes and interfaces!
 
@@ -18,6 +20,11 @@ export default class MyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
+		this.registerView(
+			VIEW_TYPE_EXAMPLE,
+			(leaf) => new ExampleView(leaf)
+		  );
+
 		const tezaurs = await requestUrl('https://tezaurs.lv/durvis').text;
 		console.log("tez = ", tezaurs);
 
@@ -25,9 +32,6 @@ export default class MyPlugin extends Plugin {
 		const dict_sense = $('.dict_Sense:first .dict_Gloss');
 
 		console.log(dict_sense.length);
-		// console.log(dict_sense);
-		// console.log(dict_sense.text());
-
 		let id = 1
 
 		$('.dict_Sense:first .dict_Gloss').each(function(i, elm) {
@@ -35,19 +39,11 @@ export default class MyPlugin extends Plugin {
 			id = id + 1; 
 		});
 
-		// dict_sense.each((index, element) => {
-		// 	console.log(dict_sense.text());
-		// 	console.log('\n');
-		// })
-
-
-
-		// await this.getData();
-
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('type', 'Tezaurs Definition', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+			// new Notice('Test!');
+			this.activateView();
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
@@ -108,6 +104,26 @@ export default class MyPlugin extends Plugin {
 
 	onunload() {
 
+	}
+
+	async activateView() {
+		const { workspace } = this.app;
+	
+		let leaf: WorkspaceLeaf | null = null;
+		const leaves = workspace.getLeavesOfType(VIEW_TYPE_EXAMPLE);
+	
+		if (leaves.length > 0) {
+		  // A leaf with our view already exists, use that
+		  leaf = leaves[0];
+		} else {
+		  // Our view could not be found in the workspace, create a new leaf
+		  // in the right sidebar for it
+		  leaf = workspace.getRightLeaf(false);
+		  await leaf.setViewState({ type: VIEW_TYPE_EXAMPLE, active: true });
+		}
+	
+	// "Reveal" the leaf in case it is in a collapsed sidebar
+	workspace.revealLeaf(leaf);
 	}
 
 	async loadSettings() {
