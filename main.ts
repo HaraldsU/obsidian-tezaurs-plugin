@@ -25,20 +25,6 @@ export default class MyPlugin extends Plugin {
 			(leaf) => new ExampleView(leaf)
 		  );
 
-		const tezaurs = await requestUrl('https://tezaurs.lv/durvis').text;
-		console.log("tez = ", tezaurs);
-
-		const $ = cheerio.load(tezaurs);
-		const dict_sense = $('.dict_Sense:first .dict_Gloss');
-
-		console.log(dict_sense.length);
-		let id = 1
-
-		$('.dict_Sense:first .dict_Gloss').each(function(i, elm) {
-			console.log(id, $(this).text());
-			id = id + 1; 
-		});
-
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('type', 'Tezaurs Definition', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
@@ -106,6 +92,29 @@ export default class MyPlugin extends Plugin {
 
 	}
 
+	static async getTezaursDefinition(input: string) {
+		const searchURL = 'https://tezaurs.lv/' + input 
+		const tezaurs = await requestUrl(searchURL).text;
+		// console.log("tez = ", tezaurs);
+
+		const $ = cheerio.load(tezaurs);
+		// const dict_sense = $('.dict_Sense:first .dict_Gloss');
+		// console.log(dict_sense.length);
+
+		let id = 1
+		let returnValues: string[] = [];
+
+		$('.dict_Sense:first .dict_Gloss').each(function(i, elm) {
+			// console.log(id, $(this).text());
+			let returnString = String(id) + " " + $(this).text();
+			returnValues.push(returnString);
+			id = id + 1; 
+		});
+
+		// console.log("RValues = ", returnValues)
+		return returnValues;
+	}
+
 	async activateView() {
 		const { workspace } = this.app;
 	
@@ -122,8 +131,8 @@ export default class MyPlugin extends Plugin {
 		  await leaf.setViewState({ type: VIEW_TYPE_EXAMPLE, active: true });
 		}
 	
-	// "Reveal" the leaf in case it is in a collapsed sidebar
-	workspace.revealLeaf(leaf);
+		// "Reveal" the leaf in case it is in a collapsed sidebar
+		workspace.revealLeaf(leaf);
 	}
 
 	async loadSettings() {
