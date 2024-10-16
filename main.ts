@@ -20,6 +20,7 @@ export default class MyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
+		// This registers the Tezaurs definition view
 		this.registerView(
 			VIEW_TYPE_EXAMPLE,
 			(leaf) => new ExampleView(leaf)
@@ -95,18 +96,18 @@ export default class MyPlugin extends Plugin {
 	static async getTezaursDefinition(input: string) {
 		const searchURL = 'https://tezaurs.lv/' + input 
 		const tezaurs = await requestUrl(searchURL).text;
-		// console.log("tez = ", tezaurs);
-
 		const $ = cheerio.load(tezaurs);
-		// const dict_sense = $('.dict_Sense:first .dict_Gloss');
-		// console.log(dict_sense.length);
-
 		let id = 1
 		let returnValues: string[] = [];
 
-		$('.dict_Sense:first .dict_Gloss').each(function(i, elm) {
+		// $('*').each((i, element) => {
+		// 	console.log($(element).html()); // or .text() for text content only
+		// });
+
+		// $('.dict_Sense:first .dict_Gloss').each(function(i, elm) {
+		$('.dict_Sense .dict_Gloss').each(function(i, elm) {
 			// console.log(id, $(this).text());
-			let returnString = String(id) + " " + $(this).text();
+			let returnString = String(id) + ". " + $(this).text();
 			returnValues.push(returnString);
 			id = id + 1; 
 		});
