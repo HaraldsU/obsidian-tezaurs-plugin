@@ -1,4 +1,4 @@
-import { IconName, ItemView, WorkspaceLeaf, Workspace, View } from 'obsidian';
+import { ItemView, WorkspaceLeaf } from 'obsidian';
 import MyPlugin from 'main';
 
 export const VIEW_TYPE_EXAMPLE = 'tezaurs-definitions';
@@ -27,10 +27,10 @@ export class ExampleView extends ItemView {
     ExampleView.mainContainer = this.containerEl.children[1];
     const inputContainer = ExampleView.mainContainer.createDiv('tezaurs-input');
     ExampleView.listContainer = ExampleView.mainContainer.createDiv('tezaurs-definitions');
-    
+
     ExampleView.inputEl = inputContainer.createEl('input', { text: 'tezaurs-input' });
     ExampleView.inputEl.setAttribute('type', 'text');
-    
+
     ExampleView.button = inputContainer.createEl('button', { text: 'Search' });
     ExampleView.button.setAttribute('type', 'button');
     ExampleView.button.addEventListener('click', async () => {
@@ -40,12 +40,11 @@ export class ExampleView extends ItemView {
   }
 
   static async displayTezaursDefinition(input: string) {
-    // input = input[0].toUpperCase() + input.substring(1).toLowerCase();
+    // console.log('inp = ', input);
     input = input.toLowerCase();
-    console.log("input = ", input);
 
     if (ExampleView.inputTitle != null) {
-      ExampleView.inputTitle.empty(); 
+      ExampleView.inputTitle.empty();
     }
 
     ExampleView.inputTitle = ExampleView.mainContainer.createEl('h2', { text: input[0].toUpperCase() + input.substring(1).toLowerCase() })
@@ -53,10 +52,9 @@ export class ExampleView extends ItemView {
 
     ExampleView.listContainer.empty();
     let definitions = await MyPlugin.getTezaursDefinition(input);
-    console.log("def = ", definitions);
 
     if (definitions.length > 0) {
-      definitions.forEach(function(el, i) {
+      definitions.forEach(function (el) {
         let regexpFirstWord = new RegExp('^(\\S+)');
         let matchFW = regexpFirstWord.exec(el);
         let firstNumber = 0;
@@ -71,7 +69,7 @@ export class ExampleView extends ItemView {
             let li = ExampleView.listContainer.createEl('li', { text: el });
 
             if (matchD.length > 1) {
-              secondNumber = parseInt(matchD[1]); 
+              secondNumber = parseInt(matchD[1]);
               li.style.paddingLeft = '2em';
             }
             else {
@@ -82,7 +80,7 @@ export class ExampleView extends ItemView {
       })
     }
     else {
-      ExampleView.listContainer.createEl('li', { text: 'No definition found!' }); 
+      ExampleView.listContainer.createEl('li', { text: 'No definition found!' });
     }
   }
 
