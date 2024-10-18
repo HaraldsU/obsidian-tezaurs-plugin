@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, RequestUrlResponse, requestUrl} from 'obsidian';
+import { App, Editor, EditorTransaction, MarkdownView, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting, RequestUrlResponse, requestUrl, Workspace} from 'obsidian';
 import * as cheerio from 'cheerio';
 import fetch from 'node-fetch';
 import { WorkspaceLeaf } from "obsidian";
@@ -34,6 +34,21 @@ export default class MyPlugin extends Plugin {
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
+
+		this.registerEvent(
+			this.app.workspace.on('editor-menu', (menu, editor, view) => {
+			  menu.addItem((item) => {
+				item
+				  .setTitle('Get Tezaurs definition')
+				  .setIcon('type')
+				  .onClick(async () => {
+					// console.log('selection = ', editor.getSelection());
+					// ExampleView.unload();
+					ExampleView.displayTezaursDefinition(editor.getSelection());
+				  });
+			  });
+			})
+		  );
 
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		const statusBarItemEl = this.addStatusBarItem();
@@ -97,22 +112,23 @@ export default class MyPlugin extends Plugin {
 		const searchURL = 'https://tezaurs.lv/' + input 
 		const tezaurs = await requestUrl(searchURL).text;
 		const $ = cheerio.load(tezaurs);
-		let id = 1
 		let returnValues: string[] = [];
 
-		// $('*').each((i, element) => {
-		// 	console.log($(element).html()); // or .text() for text content only
-		// });
+		const dictSenseElements = $('#homonym-1 > .dict_Sense');
+		// console.log("LEN = ", dictSenseElements.length);
 
-		// $('.dict_Sense:first .dict_Gloss').each(function(i, elm) {
-		$('.dict_Sense .dict_Gloss').each(function(i, elm) {
-			// console.log(id, $(this).text());
-			let returnString = String(id) + ". " + $(this).text();
-			returnValues.push(returnString);
-			id = id + 1; 
+		dictSenseElements.each(function getDictGloss() {
+			let returnId = $(this).attr('id')?.slice(1);
+			let returnString = $(this).find('> .dict_Gloss').text(); 
+
+			// console.log("RI = ", returnId);
+			// console.log('RET = ', returnString);
+			
+			returnValues.push(returnId + '. ' + returnString);
+			const childDictSense = $(this).find('> .dict_Sense');
+			childDictSense.each(getDictGloss);
 		});
 
-		// console.log("RValues = ", returnValues)
 		return returnValues;
 	}
 
@@ -121,15 +137,16 @@ export default class MyPlugin extends Plugin {
 	
 		let leaf: WorkspaceLeaf | null = null;
 		const leaves = workspace.getLeavesOfType(VIEW_TYPE_EXAMPLE);
-	
+
 		if (leaves.length > 0) {
-		  // A leaf with our view already exists, use that
-		  leaf = leaves[0];
-		} else {
-		  // Our view could not be found in the workspace, create a new leaf
-		  // in the right sidebar for it
-		  leaf = workspace.getRightLeaf(false);
-		  await leaf.setViewState({ type: VIEW_TYPE_EXAMPLE, active: true });
+			// A leaf with our view already exists, use that
+			leaf = leaves[0];
+		} 
+		else {
+			// Our view could not be found in the workspace, create a new leaf
+			// in the right sidebar for it
+			leaf = workspace.getRightLeaf(false);
+			await leaf.setViewState({ type: VIEW_TYPE_EXAMPLE, active: true });
 		}
 	
 		// "Reveal" the leaf in case it is in a collapsed sidebar
