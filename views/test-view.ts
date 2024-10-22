@@ -40,7 +40,6 @@ export class ExampleView extends ItemView {
   }
 
   static async displayTezaursDefinition(input: string) {
-    // console.log('inp = ', input);
     input = input.toLowerCase();
 
     if (ExampleView.inputTitle != null) {
@@ -53,34 +52,26 @@ export class ExampleView extends ItemView {
     ExampleView.listContainer.empty();
     let definitions = await MyPlugin.getTezaursDefinition(input);
 
-    if (definitions.length > 0) {
-      definitions.forEach(function (el) {
-        let regexpFirstWord = new RegExp('^(\\S+)');
-        let matchFW = regexpFirstWord.exec(el);
-        let firstNumber = 0;
-
-        if (matchFW != null) {
-          let regexpDigits = new RegExp('\\d', 'g');
-          let matchD = matchFW[0].match(regexpDigits);
-
-          if (matchD != null) {
-            firstNumber = parseInt(matchD[0]);
-            let secondNumber = 0;
-            let li = ExampleView.listContainer.createEl('li', { text: el });
-
-            if (matchD.length > 1) {
-              secondNumber = parseInt(matchD[1]);
-              li.style.paddingLeft = '2em';
-            }
-            else {
-              li.style.paddingLeft = '1em';
+    if (definitions != undefined){
+      if (definitions.length > 0) {
+        definitions.forEach(function (el) {
+          let regexpFirstWord = new RegExp('^(\\S+)');
+          let matchFW = regexpFirstWord.exec(el);
+  
+          if (matchFW != null) {
+            let regexpDigits = new RegExp('\\d', 'g');
+            let matchD = matchFW[0].match(regexpDigits);
+  
+            if (matchD != null) {
+              let li = ExampleView.listContainer.createEl('li', { text: el });
+              li.style.paddingLeft = matchD.length + 'em';
             }
           }
-        }
-      })
-    }
-    else {
-      ExampleView.listContainer.createEl('li', { text: 'No definition found!' });
+        })
+      }
+      else {
+        ExampleView.listContainer.createEl('li', { text: 'No definition found!' });
+      }
     }
   }
 

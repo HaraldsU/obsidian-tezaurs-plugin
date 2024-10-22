@@ -79,20 +79,27 @@ export default class MyPlugin extends Plugin {
 	static async getTezaursDefinition(input: string) {
 		let returnValues: string[] = [];
 		const searchURL = 'https://tezaurs.lv/' + input 
-		const tezaurs = await requestUrl(searchURL).text;
-		const $ = cheerio.load(tezaurs);
-		const dictSenseElements = $('#homonym-1 > .dict_Sense');
 
-		dictSenseElements.each(function getDictGloss() {
-			let returnId = $(this).attr('id')?.slice(1);
-			let returnString = $(this).find('> .dict_Gloss').text(); 
+		try {
+			const tezaurs = await requestUrl(searchURL).text;
+	
+			const $ = cheerio.load(tezaurs);
+			const dictSenseElements = $('#homonym-1 > .dict_Sense');
+	
+			dictSenseElements.each(function getDictGloss() {
+				let returnId = $(this).attr('id')?.slice(1);
+				let returnString = $(this).find('> .dict_Gloss').text(); 
+	
+				returnValues.push(returnId + '. ' + returnString);
+				const childDictSense = $(this).find('> .dict_Sense');
+				childDictSense.each(getDictGloss);
+			});
 
-			returnValues.push(returnId + '. ' + returnString);
-			const childDictSense = $(this).find('> .dict_Sense');
-			childDictSense.each(getDictGloss);
-		});
-
-		return returnValues;
+			return returnValues;
+		}
+		catch (error) {
+			console.error('Request failed:', error)
+		}
 	}
 
 	async activateView() {
