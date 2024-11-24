@@ -13,7 +13,6 @@ If your plugin does not need CSS, delete this file.
     width: 100%;
 }
 
-/* .tezaurs-table th, */
 .tezaurs-table td {
     border: 1px solid var(--background-modifier-border);
     padding: 10px;
@@ -35,8 +34,3 @@ If your plugin does not need CSS, delete this file.
     font-style: italic;
     font-size: var(--font-smallest);
 }
-
-/* Optional: Add hover effect on rows */
-/* .tezaurs-table tr:hover {
-    background-color: var(--background-modifier-hover);
-} */

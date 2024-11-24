@@ -6,7 +6,7 @@ export const VIEW_TYPE_EXAMPLE = "tezaurs-definitions";
 export class ExampleView extends ItemView {
   private mainContainer: Element;
   private headingContainer: HTMLElement;
-  private tableContainer: HTMLDivElement;
+  private tableDiv: HTMLDivElement;
   private inputEl: HTMLInputElement;
 
   constructor(leaf: WorkspaceLeaf) {
@@ -25,33 +25,36 @@ export class ExampleView extends ItemView {
   async onOpen() {
     // Containers
     this.mainContainer = this.containerEl.children[1];
-    const inputContainer = this.mainContainer.createDiv("search-input-container");
-    this.tableContainer = this.mainContainer.createDiv("tezaurs-table");
+    const inputDiv = this.mainContainer.createDiv("search-input-container");
+    this.tableDiv = this.mainContainer.createDiv("tezaurs-table");
 
     // Elements
-    this.inputEl = inputContainer.createEl("input", { placeholder: "Search..." });
+    this.inputEl = inputDiv.createEl("input", { placeholder: "Search..." });
     this.inputEl.setAttribute("type", "text");
 
-    const inputClearEl = inputContainer.createEl("div");
-    inputClearEl.className = "search-input-clear-button";
-    inputClearEl.ariaLabel = "Clear search";
+    const inputClearDiv = inputDiv.createEl("div");
+    inputClearDiv.className = "search-input-clear-button";
+    inputClearDiv.ariaLabel = "Clear search";
 
+    // Debounce to prevent race conditions
     const debouncesDisplay = debounce((input: string) => {
       this.displayTezaursDefinition(input);
     }, 500, true);
 
+    // Do when typing in input
     this.inputEl.addEventListener("input", async () => {
       const inputData = this.inputEl.value;
       debouncesDisplay(inputData);
     });
 
-    inputClearEl.addEventListener("click", () => {
+    // Do when input clear icon clicked
+    inputClearDiv.addEventListener("click", () => {
       this.clearInput();
     })
   }
 
   public async displayTezaursDefinition(input: string) {
-    this.tableContainer.empty();
+    this.tableDiv.empty();
     this.headingContainer?.remove();
 
     if (input != "") {
@@ -60,7 +63,7 @@ export class ExampleView extends ItemView {
       const [context, definitions] = (await this.getTezaursDefinition(input) as [string, string[]]);
 
       this.headingContainer = this.mainContainer.createEl("h2");
-      this.mainContainer.insertBefore(this.headingContainer, this.tableContainer);
+      this.mainContainer.insertBefore(this.headingContainer, this.tableDiv);
 
       this.headingContainer.createSpan({
         text: input[0].toUpperCase() + input.substring(1).toLowerCase() + " ",
@@ -70,8 +73,6 @@ export class ExampleView extends ItemView {
         text: "(" + context + ")",
         cls: "tezaurs-heading-context"
       });
-
-      console.log("definitions = ", definitions);
 
       if (definitions != undefined) {
         if (definitions.length > 0) {
@@ -84,7 +85,7 @@ export class ExampleView extends ItemView {
               let matchD = matchFW[0].match(regexpDigits);
 
               if (matchD != null) {
-                let tr = this.tableContainer.createEl("tr");
+                let tr = this.tableDiv.createEl("tr");
                 let td = tr.createEl("td", { text: el });
 
                 if (matchD.length == 1) {
@@ -98,7 +99,7 @@ export class ExampleView extends ItemView {
           })
         }
         else {
-          let tr = this.tableContainer.createEl("tr");
+          let tr = this.tableDiv.createEl("tr");
           tr.createEl("td", { text: "No definition found!" });
         }
       }
@@ -107,7 +108,7 @@ export class ExampleView extends ItemView {
 
   private clearInput() {
     this.inputEl.value = "";
-    this.tableContainer.empty();
+    this.tableDiv.empty();
     this.headingContainer?.remove();
   }
 
@@ -115,14 +116,13 @@ export class ExampleView extends ItemView {
     const searchURL = "https://tezaurs.lv/" + input
 
     try {
-      let returnValues: string[] = [];
       let context;
-      const tezaurs = await requestUrl(searchURL).text;
+      let returnValues: string[] = [];
+      const response = await requestUrl(searchURL).text;
 
-      const $ = cheerio.load(tezaurs);
+      const $ = cheerio.load(response);
       const dictSenseElements = $("#homonym-1 > .dict_Sense");
       context = $("#homonym-1 > .dict_EntryHeader > .dict_Lexemes > .dict_Lexeme > .dict_Verbalization").text();
-      console.log("context = ", context);
 
       dictSenseElements.each(function getDictGloss() {
         let returnId = $(this).attr("id")?.slice(1);
