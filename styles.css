@@ -6,3 +6,37 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+.tezaurs-table table {
+    margin-top: var(--size-4-4);
+    border-collapse: collapse;
+    width: 100%;
+}
+
+/* .tezaurs-table th, */
+.tezaurs-table td {
+    border: 1px solid var(--background-modifier-border);
+    padding: 10px;
+    text-align: left;
+}
+
+.tezaurs-table .tezaurs-table-head {
+    background-color: var(--background-primary);
+    font-weight: var(--font-semibold);
+    padding-left: var(--size-4-4);
+}
+
+.tezaurs-table .tezaurs-table-data {
+    background-color: var(--background-secondary);
+    padding-left: var(--size-4-6);
+}
+
+.tezaurs-heading-context {
+    font-style: italic;
+    font-size: var(--font-smallest);
+}
+
+/* Optional: Add hover effect on rows */
+/* .tezaurs-table tr:hover {
+    background-color: var(--background-modifier-hover);
+} */

@@ -1,18 +1,18 @@
-import { App, Editor, MarkdownView,  Modal,  Plugin, PluginSettingTab, Setting, requestUrl, WorkspaceLeaf } from 'obsidian';
-import * as cheerio from 'cheerio';
+import { App, Editor, MarkdownView, Modal, Plugin, PluginSettingTab, Setting, requestUrl, WorkspaceLeaf } from 'obsidian';
 import { ExampleView, VIEW_TYPE_EXAMPLE } from "./views/test-view";
 
 export default class MyPlugin extends Plugin {
-	// settings: MyPluginSettings;
+	private exampleView: ExampleView | null = null;
 
 	async onload() {
-		// await this.loadSettings();
-
 		// This registers the Tezaurs definition view
 		this.registerView(
 			VIEW_TYPE_EXAMPLE,
-			(leaf) => new ExampleView(leaf)
-		  );
+			(leaf) => {
+				this.exampleView = new ExampleView(leaf);
+				return this.exampleView;
+			}
+		);
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('type', 'Tezaurs Definition', (evt: MouseEvent) => {
@@ -22,18 +22,19 @@ export default class MyPlugin extends Plugin {
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
 
+		// Create a context menu entry
 		this.registerEvent(
 			this.app.workspace.on('editor-menu', (menu, editor, view) => {
-			  menu.addItem((item) => {
-				item
-				  .setTitle('Get Tezaurs definition')
-				  .setIcon('type')
-				  .onClick(async () => {
-					ExampleView.displayTezaursDefinition(editor.getSelection());
-				  });
-			  });
+				menu.addItem((item) => {
+					item
+						.setTitle('Get Tezaurs definition')
+						.setIcon('type')
+						.onClick(async () => {
+							this.exampleView?.displayTezaursDefinition(editor.getSelection());
+						});
+				});
 			})
-		  );
+		);
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
@@ -58,7 +59,7 @@ export default class MyPlugin extends Plugin {
 						const selection = this.app.workspace.activeEditor?.editor?.getSelection();
 
 						if (selection && selection != '') {
-							ExampleView.displayTezaursDefinition(selection);
+							this.exampleView?.displayTezaursDefinition(selection);
 						}
 						else {
 							return false;
@@ -76,51 +77,30 @@ export default class MyPlugin extends Plugin {
 
 	}
 
-	static async getTezaursDefinition(input: string) {
-		let returnValues: string[] = [];
-		const searchURL = 'https://tezaurs.lv/' + input 
-
-		try {
-			const tezaurs = await requestUrl(searchURL).text;
-	
-			const $ = cheerio.load(tezaurs);
-			const dictSenseElements = $('#homonym-1 > .dict_Sense');
-	
-			dictSenseElements.each(function getDictGloss() {
-				let returnId = $(this).attr('id')?.slice(1);
-				let returnString = $(this).find('> .dict_Gloss').text(); 
-	
-				returnValues.push(returnId + '. ' + returnString);
-				const childDictSense = $(this).find('> .dict_Sense');
-				childDictSense.each(getDictGloss);
-			});
-
-			return returnValues;
-		}
-		catch (error) {
-			console.error('Request failed:', error)
-		}
-	}
-
 	async activateView() {
 		const { workspace } = this.app;
-	
+
 		let leaf: WorkspaceLeaf | null = null;
 		const leaves = workspace.getLeavesOfType(VIEW_TYPE_EXAMPLE);
 
 		if (leaves.length > 0) {
 			// A leaf with our view already exists, use that
 			leaf = leaves[0];
-		} 
+		}
 		else {
 			// Our view could not be found in the workspace, create a new leaf
 			// in the right sidebar for it
 			leaf = workspace.getRightLeaf(false);
+
+			if (!leaf) {
+				console.error('Failed to create leaf for view');
+				return;
+			}
+
 			await leaf.setViewState({ type: VIEW_TYPE_EXAMPLE, active: true });
 		}
-	
+
 		// "Reveal" the leaf in case it is in a collapsed sidebar
 		workspace.revealLeaf(leaf);
 	}
 }
-
