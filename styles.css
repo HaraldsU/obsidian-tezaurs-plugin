@@ -34,3 +34,9 @@ If your plugin does not need CSS, delete this file.
     font-style: italic;
     font-size: var(--font-smallest);
 }
+
+.tezaurs-table-error {
+    color: var(--text-error);
+    font-weight: var(--font-semibold);
+    padding: var(--size-4-4);
+}
