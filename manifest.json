@@ -1,11 +1,11 @@
 {
-	"id": "tezaurs-definitions",
-	"name": "Tezaurs Definitions",
+	"id": "tezaurs-definition",
+	"name": "Tezaurs Definition",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Provides definitions for a Latvian word from https://tezaurs.lv.",
+	"description": "Provides definitions for Latvian words from https://tezaurs.lv.",
 	"author": "HaraldsU",
 	"authorUrl": "https://github.com/HaraldsU",
 	"fundingUrl": "",
-	"isDesktopOnly": true
+	"isDesktopOnly": false
 }

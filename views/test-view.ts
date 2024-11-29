@@ -1,9 +1,9 @@
 import { ItemView, WorkspaceLeaf, debounce, requestUrl } from "obsidian";
 import * as cheerio from "cheerio";
 
-export const VIEW_TYPE_EXAMPLE = "tezaurs-definitions";
+export const TEZAURS_DEFINITION_VIEW = "tezaurs-definition";
 
-export class ExampleView extends ItemView {
+export class TezaursDefinitionView extends ItemView {
   private mainDiv: Element;
   private headingDiv: HTMLDivElement;
   private tableDiv: HTMLDivElement;
@@ -16,11 +16,11 @@ export class ExampleView extends ItemView {
   }
 
   getViewType() {
-    return VIEW_TYPE_EXAMPLE;
+    return TEZAURS_DEFINITION_VIEW;
   }
 
   getDisplayText() {
-    return "Tezaurs Definitions";
+    return "Tezaurs Definition";
   }
 
   async onOpen() {
@@ -55,8 +55,6 @@ export class ExampleView extends ItemView {
   }
 
   public async displayTezaursDefinition(input: string) {
-    console.log("input = ", input);
-
     this.tableDiv.empty();
     this.headingDiv.empty();
 
@@ -69,9 +67,9 @@ export class ExampleView extends ItemView {
           text: input[0].toUpperCase() + input.substring(1).toLowerCase() + " ",
           cls: "tezaurs-heading-input"
         });
+
         input = input.toLowerCase();
         const [context, definitions] = (await this.getTezaursDefinition(input) as [string, string[]]);
-
 
         if (definitions != undefined) {
           if (definitions.length > 0) {
@@ -113,9 +111,6 @@ export class ExampleView extends ItemView {
         tr.className = "tezaurs-table-error";
       }
     }
-    else {
-
-    }
   }
 
   private clearInput() {
@@ -126,7 +121,6 @@ export class ExampleView extends ItemView {
 
   private async getTezaursDefinition(input: string) {
     const searchURL = "https://tezaurs.lv/" + input;
-    console.log("searchURL = ", searchURL);
 
     try {
       let returnValues: string[] = [];

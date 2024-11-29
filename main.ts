@@ -1,26 +1,23 @@
 import { App, Editor, MarkdownView, Modal, Plugin, PluginSettingTab, Setting, requestUrl, WorkspaceLeaf } from 'obsidian';
-import { ExampleView, VIEW_TYPE_EXAMPLE } from "./views/test-view";
+import { TezaursDefinitionView, TEZAURS_DEFINITION_VIEW } from "./views/test-view";
 
-export default class MyPlugin extends Plugin {
-	private exampleView: ExampleView | null = null;
+export default class TezaursDefinitionPlugin extends Plugin {
+	private TezaursDefinitionView: TezaursDefinitionView | null = null;
 
 	async onload() {
 		// This registers the Tezaurs definition view
 		this.registerView(
-			VIEW_TYPE_EXAMPLE,
+			TEZAURS_DEFINITION_VIEW,
 			(leaf) => {
-				this.exampleView = new ExampleView(leaf);
-				return this.exampleView;
+				this.TezaursDefinitionView = new TezaursDefinitionView(leaf);
+				return this.TezaursDefinitionView;
 			}
 		);
 
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('type', 'Tezaurs Definition', (evt: MouseEvent) => {
+		this.addRibbonIcon('type', 'Tezaurs Definition', (evt: MouseEvent) => {
 			this.activateView();
 		});
-
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
 
 		// Create a context menu entry
 		this.registerEvent(
@@ -30,7 +27,15 @@ export default class MyPlugin extends Plugin {
 						.setTitle('Get Tezaurs definition')
 						.setIcon('type')
 						.onClick(async () => {
-							this.exampleView?.displayTezaursDefinition(editor.getSelection());
+							const selection = editor.getSelection();
+
+							if (selection && selection != '') {
+								if (!this.app.workspace.getActiveViewOfType(TezaursDefinitionView)) {
+									this.activateView();
+								}
+
+								this.TezaursDefinitionView?.displayTezaursDefinition(editor.getSelection());
+							}
 						});
 				});
 			})
@@ -38,7 +43,7 @@ export default class MyPlugin extends Plugin {
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: 'open-tezaurs-definitions-view',
+			id: 'open-tezaurs-definition-view',
 			name: 'Open view',
 			callback: () => {
 				this.activateView();
@@ -47,19 +52,24 @@ export default class MyPlugin extends Plugin {
 
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
 		this.addCommand({
-			id: 'get-tezaurs-definitions-selection',
+			id: 'get-tezaurs-definition-selection',
 			name: 'Get selection definition',
 			checkCallback: (checking: boolean) => {
 				// Conditions to check
 				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+				const selection = this.app.workspace.activeEditor?.editor?.getSelection();
+
 				if (markdownView) {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						const selection = this.app.workspace.activeEditor?.editor?.getSelection();
 
 						if (selection && selection != '') {
-							this.exampleView?.displayTezaursDefinition(selection);
+							if (!this.app.workspace.getActiveViewOfType(TezaursDefinitionView)) {
+								this.activateView();
+							}
+
+							this.TezaursDefinitionView?.displayTezaursDefinition(selection);
 						}
 						else {
 							return false;
@@ -81,7 +91,7 @@ export default class MyPlugin extends Plugin {
 		const { workspace } = this.app;
 
 		let leaf: WorkspaceLeaf | null = null;
-		const leaves = workspace.getLeavesOfType(VIEW_TYPE_EXAMPLE);
+		const leaves = workspace.getLeavesOfType(TEZAURS_DEFINITION_VIEW);
 
 		if (leaves.length > 0) {
 			// A leaf with our view already exists, use that
@@ -97,7 +107,7 @@ export default class MyPlugin extends Plugin {
 				return;
 			}
 
-			await leaf.setViewState({ type: VIEW_TYPE_EXAMPLE, active: true });
+			await leaf.setViewState({ type: TEZAURS_DEFINITION_VIEW, active: true });
 		}
 
 		// "Reveal" the leaf in case it is in a collapsed sidebar
