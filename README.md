@@ -5,6 +5,8 @@
 ### Manual
 - Go to [here](https://github.com/HaraldsU/obsidian-tezaurs-plugin/releases/latest) and download `obsidian-tezaurs-plugin-1.0.0.zip`.
 - Unzip the folder and place it in your `~/.obsidian/plugins` folder.
+- Go to Obsidian Settings -> Community plugins.
+- Refresh the `Installed plugins` and enable the `Tezaurs Definitions` plugin.
 ### Native
 - Not available yet.
 ## Usage
