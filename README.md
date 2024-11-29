@@ -2,7 +2,11 @@
 ## Overview
 - Get definitions for latvian words from https://tezaurs.lv/.
 ## Installation
-
+### Manual
+- Go to [here](https://github.com/HaraldsU/obsidian-tezaurs-plugin/releases/latest) and download `obsidian-tezaurs-plugin-1.0.0.zip`.
+- Unzip the folder and place it in your `~/.obsidian/plugins` folder.
+### Native
+- Not available yet.
 ## Usage
 ### Typing manually
 - Open Tezaurs definition view by:
