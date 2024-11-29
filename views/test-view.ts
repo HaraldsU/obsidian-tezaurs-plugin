@@ -1,9 +1,9 @@
 import { ItemView, WorkspaceLeaf, debounce, requestUrl } from "obsidian";
 import * as cheerio from "cheerio";
 
-export const TEZAURS_DEFINITION_VIEW = "tezaurs-definition";
+export const TEZAURS_DEFINITIONS_VIEW = "tezaurs-definitions";
 
-export class TezaursDefinitionView extends ItemView {
+export class TezaursDefinitionsView extends ItemView {
   private mainDiv: Element;
   private headingDiv: HTMLDivElement;
   private tableDiv: HTMLDivElement;
@@ -16,11 +16,11 @@ export class TezaursDefinitionView extends ItemView {
   }
 
   getViewType() {
-    return TEZAURS_DEFINITION_VIEW;
+    return TEZAURS_DEFINITIONS_VIEW;
   }
 
   getDisplayText() {
-    return "Tezaurs Definition";
+    return "Tezaurs Definitions";
   }
 
   async onOpen() {

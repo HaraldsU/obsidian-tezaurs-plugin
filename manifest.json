@@ -1,6 +1,6 @@
 {
-	"id": "tezaurs-definition",
-	"name": "Tezaurs Definition",
+	"id": "tezaurs-definitions",
+	"name": "Tezaurs Definitions",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "Provides definitions for Latvian words from https://tezaurs.lv.",
